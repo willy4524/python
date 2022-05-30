@@ -19,7 +19,7 @@ class MainWindow(QWidget):
         self.pen = QPen(Qt.black)
         super().__init__()
         self.initUI()
-
+    
     def initUI(self):
         global index, A, pause, starFlag, finishFlag, ball, removeFlag
         index = 0
@@ -31,7 +31,7 @@ class MainWindow(QWidget):
         A = np.zeros((500,2))
 
         self.resize(500, 500)
-        self.setWindowTitle('Painter Board')
+        self.setWindowTitle('發球機落點測試 ver 1.0.2')
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), Qt.white)
@@ -145,6 +145,10 @@ class MainWindow(QWidget):
         self.painter.begin(self)
         self.pen1 = QPen(Qt.black)
         self.painter.setPen(self.pen1)
+        
+        self.pixmap = QPixmap("images/01.jpg")
+        self.painter.drawPixmap(self.rect(), self.pixmap)
+
         if removeFlag == True:
             removeFlag = False
             self.painter.eraseRect(self.rect())
