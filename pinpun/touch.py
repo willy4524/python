@@ -32,7 +32,7 @@ class MainWindow(QWidget):
         A = np.zeros((500,2))
 
         self.resize(500, 500)
-        self.setWindowTitle('發球機落點測試 ver 1.1.1')
+        self.setWindowTitle('發球機落點測試 ver 1.1.2')
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), Qt.white)
@@ -100,14 +100,14 @@ class MainWindow(QWidget):
         self.lbl13.move(310, 153)
         self.lbl14.move(310, 203)
         self.lbl15.move(310, 253)
-        self.lbl16.move(210, 53)
+        self.lbl16.move(250, 53)
         self.lbl17.move(10, 303)
         self.lbl18.move(210, 303)
         self.lbl19.move(110, 303)
         self.lbl20.move(310, 303)
 
         self.lineedit1.move(70, 50)
-        self.lineedit2.move(270, 50)
+        self.lineedit2.move(310, 50)
 
     def onButtonClick(self):
         global index, pause, starFlag, finishFlag, ball, removeFlag, outball
@@ -142,6 +142,8 @@ class MainWindow(QWidget):
                     starFlag = False
                     finishFlag = True
                     pause = False
+                    self.lbl19.setText(f'{outball}')
+                    self.lbl20.setText(f'{int((outball / ball)*100)}' + '%')
                     self.counter()
                     print('button 3 click')
         elif sender == self.mybutton4 and finishFlag == True:
@@ -157,6 +159,7 @@ class MainWindow(QWidget):
             self.lbl14.setText('00 %')
             self.lbl15.setText('00 %')
             self.lbl20.setText('00 %')
+            self.lineedit2.setText('')
             self.update()
             index = 0
         else:
@@ -225,8 +228,6 @@ class MainWindow(QWidget):
         self.lbl13.setText(f'{int((index / ball)*100)}''%')
         self.lbl14.setText(f'{int((int(ball - index - outball) / ball)*100)}' + '%')
         self.lbl15.setText(f'{int((index / ball)*100)}' + '%')
-        self.lbl19.setText(f'{outball}')
-        self.lbl20.setText(f'{int((outball / ball)*100)}' + '%')
     
 if __name__ == '__main__':
      app = QApplication([])
