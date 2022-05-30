@@ -10,6 +10,8 @@ class MainWindow(QWidget):
     A = np.zeros((500,2))
     index = 0
     pause = 0
+    starFlag = False
+    finishFlag = False
     def __init__(self):
         super(MainWindow, self).__init__()
         self.tracing_xy = []
@@ -19,13 +21,17 @@ class MainWindow(QWidget):
         self.initUI()
 
     def initUI(self):
-        global index, A, pause
+        global index, A, pause, starFlag, finishFlag, ball, removeFlag
         index = 0
         pause = 0
+        starFlag = False
+        removeFlag = False
+        finishFlag = 1
+        ball = 0
         A = np.zeros((500,2))
 
         self.resize(500, 500)
-        self.setWindowTitle('Painter Board')
+        self.setWindowTitle('發球機落點測試 ver 1.0.1')
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), Qt.white)
@@ -85,87 +91,107 @@ class MainWindow(QWidget):
         self.lineedit1.move(70, 50)
 
     def onButtonClick(self):
-        global index, pause
+        global index, pause, starFlag, finishFlag, ball, removeFlag
         sender = self.sender()
         print('objectName = ' + sender.objectName())
         if sender == self.mybutton1:
-            print('button 1 click')
-            
-            self.lbl6.setText('計數中')
-            self.lbl7.setText('0')
-            self.lbl8.setText('0')
-            self.lbl9.setText('0')
-            index = 0
+            if finishFlag == True:
+                if self.lineedit1.text() == '':
+                    self.information_msg()
+                else:
+                    print('button 1 click')
+                    starFlag = True
+                    finishFlag = False
+                    removeFlag = True
+                    pause = False
+                    ball = int(self.lineedit1.text())
+                    self.lbl6.setText('計數中')
+                    self.lbl7.setText('00')
+                    self.lbl8.setText('00')
+                    self.lbl9.setText('00')
+                    self.lbl13.setText('00 %')
+                    self.lbl14.setText('00 %')
+                    self.lbl15.setText('00 %')
+                    self.update()
+                    index = 0
         elif sender == self.mybutton2:
             print('button 2 click')
-            if pause == 0:
+            if pause == False and finishFlag == False:
                 self.lbl6.setText('暫停')
-                pause = 1
-            else:
+                pause = True
+            elif pause == True and finishFlag == False:
                 self.lbl6.setText('計數中')
-                pause = 0
+                pause = False
         elif sender == self.mybutton3:
-            self.lbl6.setText('結束')
-            self.lbl7.setText(f'{index}')
-            self.lbl8.setText(f'{int(self.lineedit1.text()) - index}')
-            self.lbl9.setText(f'{index}')
-            self.lbl13.setText(f'{int((index / int(self.lineedit1.text()))*100)}''%')
-            self.lbl14.setText(f'{int(((int(self.lineedit1.text()) - index) / int(self.lineedit1.text()))*100)}' + '%')
-            self.lbl15.setText(f'{int((index / int(self.lineedit1.text()))*100)}' + '%')
-            print('button 3 click')
+            if self.lineedit1.text() == '':
+                self.information_msg()
+            else:
+                if starFlag == True:
+                    self.lbl6.setText('結束')
+                    starFlag = False
+                    finishFlag = True
+                    pause = False
+                    self.counter()
+                    print('button 3 click')
         else:
             print('? click')
 
+    def information_msg(self):
+        reply = QMessageBox.information(self, '錯誤','請輸入球數',QMessageBox.Cancel)
+
     def paintEvent(self, QPaintEvent):
-        global index, A
+        global index, A, removeFlag
         self.painter = QPainter()
         self.painter.begin(self)
-        self.painter.setPen(self.pen)
+        self.pen1 = QPen(Qt.black)
+        self.painter.setPen(self.pen1)
+        if removeFlag == True:
+            removeFlag = False
+            self.painter.eraseRect(self.rect())
+            self.lineHistory = []
+        else:
+            start_x_temp = 0
+            start_y_temp = 0
+            if self.lineHistory:
+                for line_n in range(len(self.lineHistory)):
+                    for point_n in range(1, len(self.lineHistory[line_n])):
+                        start_x, start_y = self.lineHistory[line_n][point_n-1][0], self.lineHistory[line_n][point_n-1][1]
+                        end_x, end_y = self.lineHistory[line_n][point_n][0], self.lineHistory[line_n][point_n][1]
+                        self.painter.drawEllipse(start_x, start_y, 20, 20)
 
-        start_x_temp = 0
-        start_y_temp = 0
+            for x, y in self.tracing_xy:
+                if start_x_temp == 0 and start_y_temp == 0:
+                    self.painter.drawEllipse(self.start_xy[0][0], self.start_xy[0][1], 20, 20)
 
-        if self.lineHistory:
-            for line_n in range(len(self.lineHistory)):
-                for point_n in range(1, len(self.lineHistory[line_n])):
-                    start_x, start_y = self.lineHistory[line_n][point_n-1][0], self.lineHistory[line_n][point_n-1][1]
-                    end_x, end_y = self.lineHistory[line_n][point_n][0], self.lineHistory[line_n][point_n][1]
-                    self.painter.drawEllipse(start_x, start_y, 10, 10)
-
-        for x, y in self.tracing_xy:
-            if start_x_temp == 0 and start_y_temp == 0:
-                # self.painter.drawLine(self.start_xy[0][0], self.start_xy[0][1], x, y)
-                self.painter.drawEllipse(self.start_xy[0][0], self.start_xy[0][1], 10, 10)
-            else:
-                self.painter.drawEllipse(self.start_xy[0][0], self.start_xy[0][1], 10, 10)
-                # self.painter.drawLine(start_x_temp, start_y_temp, x, y)
-
-            start_x_temp = x
-            start_y_temp = y
-
+                start_x_temp = x
+                start_y_temp = y
         self.painter.end()
 
     def mousePressEvent(self, QMouseEvent):
-        global index, A
-        print(QMouseEvent.pos().x(), QMouseEvent.pos().y())
-        A[index][0] = QMouseEvent.pos().x()
-        A[index][1] = QMouseEvent.pos().y()
-        index += 1
-        self.tracing_xy.append((QMouseEvent.pos().x(), QMouseEvent.pos().y()))
+        global index, A, pause, starFlag
+        if starFlag == True and pause == False:
+            A[index][0] = QMouseEvent.pos().x()
+            A[index][1] = QMouseEvent.pos().y()
+            index += 1
+            self.counter()
+            self.tracing_xy.append((QMouseEvent.pos().x(), QMouseEvent.pos().y()))
         self.start_xy = [(QMouseEvent.pos().x(), QMouseEvent.pos().y())]
         self.update()
-
-    # def mouseMoveEvent(self, QMouseEvent):
-    #     self.tracing_xy.append((QMouseEvent.pos().x(), QMouseEvent.pos().y()))
-    #     self.update()
-
+        print(QMouseEvent.pos().x(), QMouseEvent.pos().y())
+        
     def mouseReleaseEvent(self, QMouseEvent):
         self.lineHistory.append(self.start_xy+self.tracing_xy)
         self.tracing_xy = []
 
+    def counter(self):
+        global index, ball
+        self.lbl7.setText(f'{index}')
+        self.lbl8.setText(f'{ball - index}')
+        self.lbl9.setText(f'{index}')
+        self.lbl13.setText(f'{int((index / ball)*100)}''%')
+        self.lbl14.setText(f'{int((int(ball - index) / ball)*100)}' + '%')
+        self.lbl15.setText(f'{int((index / ball)*100)}' + '%')
     
-
-
 if __name__ == '__main__':
      app = QApplication([])
      window = MainWindow()
