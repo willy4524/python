@@ -32,7 +32,7 @@ class MainWindow(QWidget):
         A = np.zeros((500,2))
 
         self.resize(500, 500)
-        self.setWindowTitle('發球機落點測試 ver 1.1.0')
+        self.setWindowTitle('發球機落點測試 ver 1.1.1')
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), Qt.white)
@@ -116,7 +116,7 @@ class MainWindow(QWidget):
         if sender == self.mybutton1:
             if finishFlag == True:
                 if self.lineedit1.text() == '':
-                    self.information_msg()
+                    self.information1_msg()
                 else:
                     print('button 1 click')
                     self.lbl6.setText('計數中')
@@ -134,7 +134,7 @@ class MainWindow(QWidget):
                 pause = False
         elif sender == self.mybutton3:
             if self.lineedit1.text() == '' or self.lineedit2.text() == '':
-                self.information_msg()
+                self.information2_msg()
             else:
                 if starFlag == True:
                     self.lbl6.setText('結算')
@@ -144,7 +144,7 @@ class MainWindow(QWidget):
                     pause = False
                     self.counter()
                     print('button 3 click')
-        elif sender == self.mybutton4:
+        elif sender == self.mybutton4 and finishFlag == True:
             finishFlag = True
             removeFlag = True
             pause = False
@@ -152,16 +152,20 @@ class MainWindow(QWidget):
             self.lbl7.setText('00')
             self.lbl8.setText('00')
             self.lbl9.setText('00')
+            self.lbl19.setText('00')
             self.lbl13.setText('00 %')
             self.lbl14.setText('00 %')
             self.lbl15.setText('00 %')
+            self.lbl20.setText('00 %')
             self.update()
             index = 0
         else:
             print('? click')
 
-    def information_msg(self):
+    def information1_msg(self):
         reply = QMessageBox.information(self, '錯誤','請輸入球數',QMessageBox.Cancel)
+    def information2_msg(self):
+        reply = QMessageBox.information(self, '錯誤','請輸入觸網球數',QMessageBox.Cancel)
 
     def paintEvent(self, QPaintEvent):
         global index, A, removeFlag
