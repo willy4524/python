@@ -32,7 +32,7 @@ class MainWindow(QWidget):
         A = np.zeros((500,2))
 
         self.resize(500, 500)
-        self.setWindowTitle('發球機落點測試 ver 1.1.2')
+        self.setWindowTitle('發球機落點測試 ver 1.1.3')
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), Qt.white)
